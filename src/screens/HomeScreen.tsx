@@ -4,6 +4,7 @@ import {
     Text,
     StyleSheet,
     ActivityIndicator,
+    TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -37,7 +38,9 @@ export default function HomeScreen() {
 
     const [selectedCategoryId, setSelectedCategoryId] =
         useState<string | null>(null);
-
+    const [sortType, setSortType] = useState<
+        "priceAsc" | "priceDesc" | "name"
+    >("priceAsc");
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -93,6 +96,25 @@ export default function HomeScreen() {
             );
         });
     }, [products, selectedCategoryId]);
+    const sortedProducts = useMemo(() => {
+        const result = [...filteredProducts];
+
+        if (sortType === "priceAsc") {
+            result.sort((a, b) => a.price - b.price);
+        }
+
+        if (sortType === "priceDesc") {
+            result.sort((a, b) => b.price - a.price);
+        }
+
+        if (sortType === "name") {
+            result.sort((a, b) =>
+                a.title.localeCompare(b.title, "uk")
+            );
+        }
+
+        return result;
+    }, [filteredProducts, sortType]);
 
     if (loading) {
         return (
@@ -133,8 +155,67 @@ export default function HomeScreen() {
                     Популярні товари
                 </Text>
 
+                <View style={styles.sortContainer}>
+                    <Text style={styles.sortTitle}>
+                        Сортування:
+                    </Text>
+
+                    <View style={styles.sortButtons}>
+                        <TouchableOpacity
+                            style={[
+                                styles.sortButton,
+                                sortType === "priceAsc" && styles.sortButtonActive,
+                            ]}
+                            onPress={() => setSortType("priceAsc")}
+                        >
+                            <Text
+                                style={[
+                                    styles.sortButtonText,
+                                    sortType === "priceAsc" && styles.sortButtonTextActive,
+                                ]}
+                            >
+                                Ціна ↑
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[
+                                styles.sortButton,
+                                sortType === "priceDesc" && styles.sortButtonActive,
+                            ]}
+                            onPress={() => setSortType("priceDesc")}
+                        >
+                            <Text
+                                style={[
+                                    styles.sortButtonText,
+                                    sortType === "priceDesc" && styles.sortButtonTextActive,
+                                ]}
+                            >
+                                Ціна ↓
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[
+                                styles.sortButton,
+                                sortType === "name" && styles.sortButtonActive,
+                            ]}
+                            onPress={() => setSortType("name")}
+                        >
+                            <Text
+                                style={[
+                                    styles.sortButtonText,
+                                    sortType === "name" && styles.sortButtonTextActive,
+                                ]}
+                            >
+                                Назва А-Я
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
                 <ProductList
-                    products={filteredProducts}
+                    products={sortedProducts}
                 />
 
             </View>
@@ -173,5 +254,43 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         marginBottom: 12,
         marginTop: 16,
+    },
+    sortContainer: {
+        marginBottom: 16,
+    },
+
+    sortTitle: {
+        fontSize: 14,
+        fontWeight: "600",
+        marginBottom: 8,
+    },
+
+    sortButtons: {
+        flexDirection: "row",
+        gap: 8,
+    },
+
+    sortButton: {
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: "#E0E0E0",
+        backgroundColor: "#FFFFFF",
+    },
+
+    sortButtonActive: {
+        backgroundColor: "#2E7D32",
+        borderColor: "#2E7D32",
+    },
+
+    sortButtonText: {
+        fontSize: 12,
+        color: "#424242",
+    },
+
+    sortButtonTextActive: {
+        color: "#FFFFFF",
+        fontWeight: "600",
     },
 });
