@@ -5,6 +5,7 @@ import { MyKeyboard } from "./src/ui/MyKeybord";
 import CategoryScreen from "./src/screens/CategoryScreen";
 import HomeScreen from "./src/screens/HomeScreen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import ProductsScreen from "./src/screens/ProductsScreen";
 
 export default function App() {
   return (
@@ -12,6 +13,7 @@ export default function App() {
       <View style={styles.container}>
         {/* <CategoryScreen /> */}
         <HomeScreen />
+        {/* <ProductsScreen /> */}
         <StatusBar style="auto" />
       </View>
     </SafeAreaProvider>
