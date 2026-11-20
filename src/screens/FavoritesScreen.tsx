@@ -9,7 +9,10 @@ import {
     Switch,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import type { RootStackParamList } from "../navigation/types";
+import { useCart } from "../context/CartContext";
 import ProductList from "../components/ProductList";
 
 interface Product {
@@ -41,6 +44,10 @@ export default function FavoritesScreen({
     const favoriteProducts = products.filter((product) =>
         favoriteIds.includes(product.id)
     );
+    const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+    const { addToCart } = useCart();
 
     return (
         <ScrollView style={styles.container}>
@@ -109,6 +116,20 @@ export default function FavoritesScreen({
                     products={favoriteProducts}
                     favoriteIds={favoriteIds}
                     onToggleFavorite={onToggleFavorite}
+                    onAddToCart={(id) => {
+                        const product = favoriteProducts.find(
+                            (item) => item.id === id
+                        );
+
+                        if (product) {
+                            addToCart(product);
+                        }
+                    }}
+                    onProductPress={(id) =>
+                        navigation.navigate("ProductDetails", {
+                            productId: id,
+                        })
+                    }
                 />
             ) : (
                 <View style={styles.emptyContainer}>

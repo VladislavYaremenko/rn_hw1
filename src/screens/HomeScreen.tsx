@@ -208,7 +208,16 @@ export default function HomeScreen() {
                     <Ionicons name="grid-outline" size={22} color="#2E7D32" />
                     <Text style={styles.navText}>Категорії</Text>
                 </TouchableOpacity>
-
+                <TouchableOpacity
+                    style={[
+                        styles.navItem,
+                        activeTab === "favorites" && styles.navItemActive,
+                    ]}
+                    onPress={() => setActiveTab("favorites")}
+                >
+                    <Ionicons name="heart-outline" size={22} color="#E53935" />
+                    <Text style={styles.navText}>Улюблене</Text>
+                </TouchableOpacity>
                 <TouchableOpacity
                     style={[
                         styles.navItem,
