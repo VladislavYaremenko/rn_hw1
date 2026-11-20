@@ -15,7 +15,11 @@ import CategoryList from "../components/CategoryList";
 import ProductList from "../components/ProductList";
 import { Ionicons } from "@expo/vector-icons";
 import CartScreen from "./CartScreen";
-
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../navigation/types";
+import { useCart } from "../context/CartContext";
+import type { Product } from "../context/CartContext";
 const { width } = Dimensions.get("window");
 const isWideScreen = width >= 768;
 
@@ -29,31 +33,19 @@ interface Category {
     iconColor: string;
 }
 
-interface Product {
-    id: string;
-    title: string;
-    price: number;
-    unit: string;
-    rating: number;
-    reviews: number;
-    image: string;
-    categoryId?: string;
-}
 
-interface CartItem {
-    product: Product;
-    quantity: number;
-}
 
 export default function HomeScreen() {
+    const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [categories, setCategories] = useState<Category[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
     const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
     const [activeTab, setActiveTab] = useState<
     "home" | "categories" | "cart" | "profile" | "favorites"
     >("home");
+    const { cartItems, addToCart, updateCartQuantity } = useCart();
 
-    const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
     const [selectedCategoryId, setSelectedCategoryId] =
         useState<string | null>(null);
@@ -69,39 +61,15 @@ export default function HomeScreen() {
         );
     };
 
-    const addToCart = (id: string) => {
-        const product = products.find((item) => item.id === id);
+    
+    const addProductToCart = (id: string) => {
+    const product = products.find((item) => item.id === id);
 
-        if (!product) return;
-
-        setCartItems((prev) => {
-            const existing = prev.find(
-                (item) => item.product.id === id
-            );
-
-            if (existing) {
-                return prev.map((item) =>
-                    item.product.id === id
-                        ? { ...item, quantity: item.quantity + 1 }
-                        : item
-                );
-            }
-
-            return [...prev, { product, quantity: 1 }];
-        });
-    };
-
-    const updateCartQuantity = (id: string, change: number) => {
-        setCartItems((prev) =>
-            prev
-                .map((item) =>
-                    item.product.id === id
-                        ? { ...item, quantity: item.quantity + change }
-                        : item
-                )
-                .filter((item) => item.quantity > 0)
-        );
-    };
+    if (product) {
+        addToCart(product);
+    }
+};
+    
 
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -246,7 +214,7 @@ export default function HomeScreen() {
                         styles.navItem,
                         activeTab === "cart" && styles.navItemActive,
                     ]}
-                    onPress={() => setActiveTab("cart")}
+                    onPress={() => navigation.navigate("Cart")}
                 >
                     <Ionicons name="cart-outline" size={22} color="#2E7D32" />
                     <Text style={styles.navText}>Кошик</Text>
@@ -272,12 +240,7 @@ export default function HomeScreen() {
                         onToggleFavorite={toggleFavorite}
                         onGoBack={() => setActiveTab("home")}
                     />
-                ) : activeTab === "cart" ? (
-                    <CartScreen
-                        cartItems={cartItems}
-                        onUpdateQuantity={updateCartQuantity}
-                        onGoBack={() => setActiveTab("home")}
-                    />
+                
                 ) : activeTab === "categories" ? (
                     <ScrollView contentContainerStyle={styles.container}>
                         <Text style={styles.sectionTitle}>Категорії</Text>
@@ -318,7 +281,7 @@ export default function HomeScreen() {
 
                         <TouchableOpacity
                             style={styles.favoritesButton}
-                            onPress={() => setActiveTab("cart")}
+                            onPress={() => navigation.navigate("Cart")}
                         >
                             <Ionicons name="cart" size={20} color="#2E7D32" />
                             <Text style={styles.favoritesButtonText}>
@@ -412,7 +375,12 @@ export default function HomeScreen() {
                             products={sortedProducts}
                             favoriteIds={favoriteIds}
                             onToggleFavorite={toggleFavorite}
-                            onAddToCart={addToCart}
+                            onAddToCart={addProductToCart}
+                            onProductPress={(id) =>
+                            navigation.navigate("ProductDetails", {
+                                productId: id,
+                            })
+                        }
                         />
                     </ScrollView>
                 )}

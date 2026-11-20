@@ -17,6 +17,7 @@ interface ProductListProps {
     favoriteIds: string[];
     onToggleFavorite: (id: string) => void;
     onAddToCart: (id: string) => void;
+    onProductPress: (id: string) => void;
 }
 
 export default function ProductList({
@@ -24,6 +25,7 @@ export default function ProductList({
     favoriteIds,
     onToggleFavorite,
     onAddToCart,
+    onProductPress,
 }: ProductListProps) {
     return (
         <View style={styles.grid}>
@@ -37,6 +39,7 @@ export default function ProductList({
                     reviews={product.reviews}
                     image={product.image}
                     isFavorite={favoriteIds.includes(product.id)}
+                    onPress={() => onProductPress(product.id)}
                     onToggleFavorite={() =>
                         onToggleFavorite(product.id)
                     }

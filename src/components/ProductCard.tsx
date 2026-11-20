@@ -17,6 +17,7 @@ interface ProductCardProps {
     isFavorite: boolean;
     onToggleFavorite: () => void;
     onAddToCart: () => void;
+    onPress: () => void;
 }
 
 export default function ProductCard({
@@ -29,6 +30,7 @@ export default function ProductCard({
     isFavorite,
     onToggleFavorite,
     onAddToCart,
+    onPress,
 }: ProductCardProps) {
     return (
         <View style={styles.card}>
@@ -43,20 +45,22 @@ export default function ProductCard({
                 />
             </TouchableOpacity>
 
-            <Image
-                source={{ uri: image }}
-                style={styles.image}
-                resizeMode="contain"
-            />
+            <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
+    <Image
+        source={{ uri: image }}
+        style={styles.image}
+        resizeMode="contain"
+    />
 
-            <Text style={styles.title} numberOfLines={1}>
-                {title}
-            </Text>
+    <Text style={styles.title} numberOfLines={1}>
+        {title}
+    </Text>
 
-            <Text style={styles.price}>
-                {price}{" "}
-                <Text style={styles.unit}>{unit}</Text>
-            </Text>
+    <Text style={styles.price}>
+        {price}{" "}
+        <Text style={styles.unit}>{unit}</Text>
+    </Text>
+</TouchableOpacity>
 
             <View style={styles.footer}>
                 <View style={styles.rating}>

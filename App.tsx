@@ -1,21 +1,44 @@
 import { StatusBar } from "expo-status-bar";
-import { ImageBackground, StyleSheet, Text, View } from "react-native";
-import { Inputs } from "./src/ui/Inputs";
-import { MyKeyboard } from "./src/ui/MyKeybord";
-import CategoryScreen from "./src/screens/CategoryScreen";
-import HomeScreen from "./src/screens/HomeScreen";
+import { StyleSheet } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import ProductsScreen from "./src/screens/ProductsScreen";
+
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { CartProvider } from "./src/context/CartContext";
+import HomeScreen from "./src/screens/HomeScreen";
+import ProductDetailsScreen from "./src/screens/ProductDetailsScreen";
+import CartScreen from "./src/screens/CartScreen";
+import type { RootStackParamList } from "./src/navigation/types";
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
     <SafeAreaProvider>
-      <View style={styles.container}>
-        {/* <CategoryScreen /> */}
-        <HomeScreen />
-        {/* <ProductsScreen /> */}
+      <CartProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Home">
+          <Stack.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{ headerShown: false }}
+          />
+
+          <Stack.Screen
+            name="ProductDetails"
+            component={ProductDetailsScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Cart"
+            component={CartScreen}
+            options={{ headerShown: false }}
+          />
+        </Stack.Navigator>
+
         <StatusBar style="auto" />
-      </View>
+      </NavigationContainer>
+      </CartProvider>
     </SafeAreaProvider>
   );
 }
@@ -23,26 +46,5 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f2f6f4",
-    justifyContent: "center", 
-  },
-  text: {
-    textAlign: "center", 
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  flatListContainer: {
-    flexGrow: 0, 
-    marginVertical: 20, 
-  },
-  listContent: {
-    flexGrow: 1,
-    justifyContent: "center", 
-    alignItems: "center", 
-    borderWidth: 1, 
-    borderColor: "black",
-  },
-  item: {
-    marginHorizontal: 10,
   },
 });

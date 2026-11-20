@@ -11,35 +11,18 @@ import {
     Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useCart } from "../context/CartContext";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import type { RootStackParamList } from "../navigation/types";
 const { width } = Dimensions.get("window");
 const isWideScreen = width >= 768;
-interface Product {
-    id: string;
-    title: string;
-    price: number;
-    unit: string;
-    rating: number;
-    reviews: number;
-    image: string;
-    categoryId?: string;
-}
 
-interface CartItem {
-    product: Product;
-    quantity: number;
-}
+export default function CartScreen() {
+    const { cartItems, updateCartQuantity } = useCart();
 
-interface CartScreenProps {
-    cartItems: CartItem[];
-    onUpdateQuantity: (id: string, change: number) => void;
-    onGoBack: () => void;
-}
-
-export default function CartScreen({
-    cartItems,
-    onUpdateQuantity,
-    onGoBack,
-}: CartScreenProps) {
+    const navigation =
+        useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [promoCode, setPromoCode] = useState("");
 
     const total = cartItems.reduce(
@@ -53,7 +36,7 @@ export default function CartScreen({
             contentContainerStyle={styles.content}
         >
             <View style={styles.header}>
-                <TouchableOpacity onPress={onGoBack}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={25} color="#FFFFFF" />
                 </TouchableOpacity>
 
@@ -108,7 +91,7 @@ export default function CartScreen({
                                 <TouchableOpacity
                                     style={styles.quantityButton}
                                     onPress={() =>
-                                        onUpdateQuantity(item.product.id, -1)
+                                        updateCartQuantity(item.product.id, -1)
                                     }
                                 >
                                     <Text style={styles.quantityButtonText}>−</Text>
@@ -121,7 +104,7 @@ export default function CartScreen({
                                 <TouchableOpacity
                                     style={styles.quantityButton}
                                     onPress={() =>
-                                        onUpdateQuantity(item.product.id, 1)
+                                        updateCartQuantity(item.product.id, 1)
                                     }
                                 >
                                     <Text style={styles.quantityButtonText}>+</Text>
