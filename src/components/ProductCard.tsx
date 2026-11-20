@@ -1,4 +1,3 @@
-
 import {
     View,
     Text,
@@ -17,6 +16,7 @@ interface ProductCardProps {
     image: string;
     isFavorite: boolean;
     onToggleFavorite: () => void;
+    onAddToCart: () => void;
 }
 
 export default function ProductCard({
@@ -28,6 +28,7 @@ export default function ProductCard({
     image,
     isFavorite,
     onToggleFavorite,
+    onAddToCart,
 }: ProductCardProps) {
     return (
         <View style={styles.card}>
@@ -54,29 +55,24 @@ export default function ProductCard({
 
             <Text style={styles.price}>
                 {price}{" "}
-                <Text style={styles.unit}>
-                    {unit}
-                </Text>
+                <Text style={styles.unit}>{unit}</Text>
             </Text>
 
             <View style={styles.footer}>
                 <View style={styles.rating}>
                     <Ionicons name="star" size={14} color="#FFB300" />
-
                     <Text style={styles.ratingText}>
                         {rating}{" "}
-                        <Text style={styles.reviews}>
-                            ({reviews})
-                        </Text>
+                        <Text style={styles.reviews}>({reviews})</Text>
                     </Text>
                 </View>
 
-                <TouchableOpacity style={styles.addButton}>
+                <TouchableOpacity
+                    style={styles.addButton}
+                    onPress={onAddToCart}
+                >
                     <Ionicons name="cart-outline" size={18} color="#FFFFFF" />
-
-                    <Text style={styles.addButtonText}>
-                        Add
-                    </Text>
+                    <Text style={styles.addButtonText}>Add</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -93,62 +89,52 @@ const styles = StyleSheet.create({
         borderColor: "#F0F0F0",
         backgroundColor: "#FAFAFA",
     },
-
     favoriteButton: {
         position: "absolute",
         top: 10,
         right: 10,
         zIndex: 1,
     },
-
     image: {
         width: "100%",
         height: 90,
         marginVertical: 8,
     },
-
     title: {
         fontSize: 14,
         fontWeight: "600",
         marginBottom: 4,
     },
-
     price: {
         fontSize: 16,
         fontWeight: "bold",
         marginBottom: 8,
     },
-
     unit: {
         fontSize: 12,
         fontWeight: "normal",
         color: "#757575",
     },
-
     footer: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
         marginTop: 4,
     },
-
     rating: {
         flexDirection: "row",
         alignItems: "center",
     },
-
     ratingText: {
         fontSize: 12,
         fontWeight: "bold",
         marginLeft: 2,
     },
-
     reviews: {
         fontSize: 11,
         color: "#9E9E9E",
         fontWeight: "normal",
     },
-
     addButton: {
         flexDirection: "row",
         alignItems: "center",
@@ -157,7 +143,6 @@ const styles = StyleSheet.create({
         paddingVertical: 6,
         borderRadius: 12,
     },
-
     addButtonText: {
         color: "#FFFFFF",
         fontSize: 11,

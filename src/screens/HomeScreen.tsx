@@ -6,12 +6,18 @@ import {
     ActivityIndicator,
     TouchableOpacity,
     ScrollView,
+    Dimensions,
+    Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FavoritesScreen from "./FavoritesScreen";
 import CategoryList from "../components/CategoryList";
 import ProductList from "../components/ProductList";
 import { Ionicons } from "@expo/vector-icons";
+import CartScreen from "./CartScreen";
+
+const { width } = Dimensions.get("window");
+const isWideScreen = width >= 768;
 
 const API_BASE_URL = "http://192.168.0.218:3000";
 
@@ -34,26 +40,72 @@ interface Product {
     categoryId?: string;
 }
 
+interface CartItem {
+    product: Product;
+    quantity: number;
+}
+
 export default function HomeScreen() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
     const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
-    const [showFavorites, setShowFavorites] = useState(false);
+    const [activeTab, setActiveTab] = useState<
+    "home" | "categories" | "cart" | "profile" | "favorites"
+    >("home");
+
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
     const [selectedCategoryId, setSelectedCategoryId] =
         useState<string | null>(null);
     const [sortType, setSortType] = useState<
         "priceAsc" | "priceDesc" | "name"
     >("priceAsc");
+    
     const toggleFavorite = (id: string) => {
-    setFavoriteIds((prev) =>
-        prev.includes(id)
-            ? prev.filter((item) => item !== id)
-            : [...prev, id]
-    );
-};
+        setFavoriteIds((prev) =>
+            prev.includes(id)
+                ? prev.filter((item) => item !== id)
+                : [...prev, id]
+        );
+    };
+
+    const addToCart = (id: string) => {
+        const product = products.find((item) => item.id === id);
+
+        if (!product) return;
+
+        setCartItems((prev) => {
+            const existing = prev.find(
+                (item) => item.product.id === id
+            );
+
+            if (existing) {
+                return prev.map((item) =>
+                    item.product.id === id
+                        ? { ...item, quantity: item.quantity + 1 }
+                        : item
+                );
+            }
+
+            return [...prev, { product, quantity: 1 }];
+        });
+    };
+
+    const updateCartQuantity = (id: string, change: number) => {
+        setCartItems((prev) =>
+            prev
+                .map((item) =>
+                    item.product.id === id
+                        ? { ...item, quantity: item.quantity + change }
+                        : item
+                )
+                .filter((item) => item.quantity > 0)
+        );
+    };
+
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+
 
     useEffect(() => {
         fetchData();
@@ -147,113 +199,225 @@ export default function HomeScreen() {
             </SafeAreaView>
         );
     }
-    if (showFavorites) {
-    return (
-        <FavoritesScreen
-            products={products}
-            favoriteIds={favoriteIds}
-            onToggleFavorite={toggleFavorite}
-            onGoBack={() => setShowFavorites(false)}
-        />
-    );
-}
-    return (
-            <SafeAreaView style={styles.safeArea}>
-            <ScrollView
-            contentContainerStyle={styles.container}
-            showsVerticalScrollIndicator={false}>
-        
+        return (
+        <SafeAreaView
+            style={[
+                styles.safeArea,
+                {
+                    flexDirection: isWideScreen ? "row" : "column-reverse",
+                    backgroundColor:
+                        Platform.OS === "ios" ? "#F5F5F5" : "#EEEEEE",
+                },
+            ]}
+        >
+            
+            <View
+                style={[
+                    styles.navigation,
+                    isWideScreen
+                        ? styles.navigationWide
+                        : styles.navigationNarrow,
+                ]}
+            >
                 <TouchableOpacity
-                    style={styles.favoritesButton}
-                    onPress={() => setShowFavorites(true)}
->
-                <Ionicons name="heart" size={20} color="#E53935" />
-                <Text style={styles.favoritesButtonText}>
-                    Обране ({favoriteIds.length})
-                </Text>
+                    style={[
+                        styles.navItem,
+                        activeTab === "home" && styles.navItemActive,
+                    ]}
+                    onPress={() => setActiveTab("home")}
+                >
+                    <Ionicons name="home-outline" size={22} color="#2E7D32" />
+                    <Text style={styles.navText}>Home</Text>
                 </TouchableOpacity>
 
-                <Text style={styles.sectionTitle}>
-                    Категорії
-                </Text>
+                <TouchableOpacity
+                    style={[
+                        styles.navItem,
+                        activeTab === "categories" && styles.navItemActive,
+                    ]}
+                    onPress={() => setActiveTab("categories")}
+                >
+                    <Ionicons name="grid-outline" size={22} color="#2E7D32" />
+                    <Text style={styles.navText}>Категорії</Text>
+                </TouchableOpacity>
 
-                <CategoryList
-                    categories={categories}
-                    selectedCategoryId={selectedCategoryId}
-                    onSelectCategory={setSelectedCategoryId}
-                />
+                <TouchableOpacity
+                    style={[
+                        styles.navItem,
+                        activeTab === "cart" && styles.navItemActive,
+                    ]}
+                    onPress={() => setActiveTab("cart")}
+                >
+                    <Ionicons name="cart-outline" size={22} color="#2E7D32" />
+                    <Text style={styles.navText}>Кошик</Text>
+                </TouchableOpacity>
 
-                <Text style={styles.sectionTitle}>
-                    Популярні товари
-                </Text>
+                <TouchableOpacity
+                    style={[
+                        styles.navItem,
+                        activeTab === "profile" && styles.navItemActive,
+                    ]}
+                    onPress={() => setActiveTab("profile")}
+                >
+                    <Ionicons name="person-outline" size={22} color="#2E7D32" />
+                    <Text style={styles.navText}>Профіль</Text>
+                </TouchableOpacity>
+            </View>
 
-                <View style={styles.sortContainer}>
-                    <Text style={styles.sortTitle}>
-                        Сортування:
-                    </Text>
+            <View style={styles.screenContent}>
+                {activeTab === "favorites" ? (
+                    <FavoritesScreen
+                        products={products}
+                        favoriteIds={favoriteIds}
+                        onToggleFavorite={toggleFavorite}
+                        onGoBack={() => setActiveTab("home")}
+                    />
+                ) : activeTab === "cart" ? (
+                    <CartScreen
+                        cartItems={cartItems}
+                        onUpdateQuantity={updateCartQuantity}
+                        onGoBack={() => setActiveTab("home")}
+                    />
+                ) : activeTab === "categories" ? (
+                    <ScrollView contentContainerStyle={styles.container}>
+                        <Text style={styles.sectionTitle}>Категорії</Text>
 
-                    <View style={styles.sortButtons}>
-                        <TouchableOpacity
-                            style={[
-                                styles.sortButton,
-                                sortType === "priceAsc" && styles.sortButtonActive,
-                            ]}
-                            onPress={() => setSortType("priceAsc")}
-                        >
-                            <Text
-                                style={[
-                                    styles.sortButtonText,
-                                    sortType === "priceAsc" && styles.sortButtonTextActive,
-                                ]}
-                            >
-                                Ціна ↑
-                            </Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            style={[
-                                styles.sortButton,
-                                sortType === "priceDesc" && styles.sortButtonActive,
-                            ]}
-                            onPress={() => setSortType("priceDesc")}
-                        >
-                            <Text
-                                style={[
-                                    styles.sortButtonText,
-                                    sortType === "priceDesc" && styles.sortButtonTextActive,
-                                ]}
-                            >
-                                Ціна ↓
-                            </Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            style={[
-                                styles.sortButton,
-                                sortType === "name" && styles.sortButtonActive,
-                            ]}
-                            onPress={() => setSortType("name")}
-                        >
-                            <Text
-                                style={[
-                                    styles.sortButtonText,
-                                    sortType === "name" && styles.sortButtonTextActive,
-                                ]}
-                            >
-                                Назва А-Я
-                            </Text>
-                        </TouchableOpacity>
+                        <CategoryList
+                            categories={categories}
+                            selectedCategoryId={selectedCategoryId}
+                            onSelectCategory={(id) => {
+                                setSelectedCategoryId(id);
+                                setActiveTab("home");
+                            }}
+                        />
+                    </ScrollView>
+                ) : activeTab === "profile" ? (
+                    <View style={styles.centerContainer}>
+                        <Ionicons
+                            name="person-circle-outline"
+                            size={64}
+                            color="#2E7D32"
+                        />
+                        <Text style={styles.sectionTitle}>Профіль</Text>
+                        <Text>Сторінка профілю поки що порожня</Text>
                     </View>
-                </View>
+                ) : (
+                    <ScrollView
+                        contentContainerStyle={styles.container}
+                        showsVerticalScrollIndicator={false}
+                    >
+                        <TouchableOpacity
+                            style={styles.favoritesButton}
+                            onPress={() => setActiveTab("favorites")}
+                        >
+                            <Ionicons name="heart" size={20} color="#E53935" />
+                            <Text style={styles.favoritesButtonText}>
+                                Обране ({favoriteIds.length})
+                            </Text>
+                        </TouchableOpacity>
 
-                <ProductList
-    products={sortedProducts}
-    favoriteIds={favoriteIds}
-    onToggleFavorite={toggleFavorite}
-/>
+                        <TouchableOpacity
+                            style={styles.favoritesButton}
+                            onPress={() => setActiveTab("cart")}
+                        >
+                            <Ionicons name="cart" size={20} color="#2E7D32" />
+                            <Text style={styles.favoritesButtonText}>
+                                Кошик (
+                                {cartItems.reduce(
+                                    (sum, item) => sum + item.quantity,
+                                    0
+                                )}
+                                )
+                            </Text>
+                        </TouchableOpacity>
 
-        </ScrollView>
-    </SafeAreaView>
+                        <Text style={styles.sectionTitle}>Категорії</Text>
+
+                        <CategoryList
+                            categories={categories}
+                            selectedCategoryId={selectedCategoryId}
+                            onSelectCategory={setSelectedCategoryId}
+                        />
+
+                        <Text style={styles.sectionTitle}>
+                            Популярні товари
+                        </Text>
+
+                        <View style={styles.sortContainer}>
+                            <Text style={styles.sortTitle}>
+                                Сортування:
+                            </Text>
+
+                            <View style={styles.sortButtons}>
+                                <TouchableOpacity
+                                    style={[
+                                        styles.sortButton,
+                                        sortType === "priceAsc" &&
+                                            styles.sortButtonActive,
+                                    ]}
+                                    onPress={() => setSortType("priceAsc")}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.sortButtonText,
+                                            sortType === "priceAsc" &&
+                                                styles.sortButtonTextActive,
+                                        ]}
+                                    >
+                                        Ціна ↑
+                                    </Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={[
+                                        styles.sortButton,
+                                        sortType === "priceDesc" &&
+                                            styles.sortButtonActive,
+                                    ]}
+                                    onPress={() => setSortType("priceDesc")}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.sortButtonText,
+                                            sortType === "priceDesc" &&
+                                                styles.sortButtonTextActive,
+                                        ]}
+                                    >
+                                        Ціна ↓
+                                    </Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={[
+                                        styles.sortButton,
+                                        sortType === "name" &&
+                                            styles.sortButtonActive,
+                                    ]}
+                                    onPress={() => setSortType("name")}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.sortButtonText,
+                                            sortType === "name" &&
+                                                styles.sortButtonTextActive,
+                                        ]}
+                                    >
+                                        Назва А-Я
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+
+                        <ProductList
+                            products={sortedProducts}
+                            favoriteIds={favoriteIds}
+                            onToggleFavorite={toggleFavorite}
+                            onAddToCart={addToCart}
+                        />
+                    </ScrollView>
+                )}
+            </View>
+        </SafeAreaView>
     );
 }
 
@@ -341,5 +505,52 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: "#333333",
+    },
+        navigation: {
+        backgroundColor: "#FFFFFF",
+        padding: 10,
+        gap: 8,
+    },
+
+    navigationWide: {
+    width: 130,
+    minHeight: "100%",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "stretch",
+    borderRightWidth: 1,
+    borderRightColor: "#E0E0E0",
+},
+
+    navigationNarrow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    borderTopWidth: 1,
+    borderTopColor: "#E0E0E0",
+},
+
+    navItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 6,
+    borderRadius: 10,
+},
+
+    navItemActive: {
+        backgroundColor: "#E8F5E9",
+    },
+
+    navText: {
+        fontSize: 13,
+        fontWeight: "600",
+        color: "#333333",
+    },
+
+    screenContent: {
+        flex: 1,
+        minWidth: 0,
     },
 });
