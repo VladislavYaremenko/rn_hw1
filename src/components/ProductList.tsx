@@ -1,3 +1,4 @@
+
 import { View, StyleSheet } from "react-native";
 import ProductCard from "./ProductCard";
 
@@ -14,10 +15,14 @@ interface Product {
 
 interface ProductListProps {
     products: Product[];
+    favoriteIds: string[];
+    onToggleFavorite: (id: string) => void;
 }
 
 export default function ProductList({
     products,
+    favoriteIds,
+    onToggleFavorite,
 }: ProductListProps) {
     return (
         <View style={styles.grid}>
@@ -30,6 +35,10 @@ export default function ProductList({
                     rating={product.rating}
                     reviews={product.reviews}
                     image={product.image}
+                    isFavorite={favoriteIds.includes(product.id)}
+                    onToggleFavorite={() =>
+                        onToggleFavorite(product.id)
+                    }
                 />
             ))}
         </View>

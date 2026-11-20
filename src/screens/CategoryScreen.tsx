@@ -31,7 +31,6 @@ export default function CategoryScreen() {
 
   const [categories, setCategories] = useState<ServerCategory[]>([]);
 
-  // Загрузка категорий с сервера
   useEffect(() => {
     fetch(URL, {
       headers: {
@@ -43,7 +42,6 @@ export default function CategoryScreen() {
       .catch((err) => console.log(err));
   }, []);
 
-  // Добавление новой категории
   const handleAddCategory = async () => {
     if (!category.name || !category.image || !category.color) {
       return;

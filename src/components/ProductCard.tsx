@@ -1,4 +1,11 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TouchableOpacity,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 interface ProductCardProps {
@@ -8,6 +15,8 @@ interface ProductCardProps {
     rating: number;
     reviews: number;
     image: string;
+    isFavorite: boolean;
+    onToggleFavorite: () => void;
 }
 
 export default function ProductCard({
@@ -17,11 +26,20 @@ export default function ProductCard({
     rating,
     reviews,
     image,
+    isFavorite,
+    onToggleFavorite,
 }: ProductCardProps) {
     return (
         <View style={styles.card}>
-            <TouchableOpacity style={styles.favoriteButton}>
-                <Ionicons name="heart-outline" size={20} color="#BDBDBD" />
+            <TouchableOpacity
+                style={styles.favoriteButton}
+                onPress={onToggleFavorite}
+            >
+                <Ionicons
+                    name={isFavorite ? "heart" : "heart-outline"}
+                    size={22}
+                    color={isFavorite ? "#E53935" : "#BDBDBD"}
+                />
             </TouchableOpacity>
 
             <Image

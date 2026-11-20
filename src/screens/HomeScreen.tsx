@@ -5,11 +5,13 @@ import {
     StyleSheet,
     ActivityIndicator,
     TouchableOpacity,
+    ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import FavoritesScreen from "./FavoritesScreen";
 import CategoryList from "../components/CategoryList";
 import ProductList from "../components/ProductList";
+import { Ionicons } from "@expo/vector-icons";
 
 const API_BASE_URL = "http://192.168.0.218:3000";
 
@@ -35,12 +37,21 @@ interface Product {
 export default function HomeScreen() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
+    const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+    const [showFavorites, setShowFavorites] = useState(false);
 
     const [selectedCategoryId, setSelectedCategoryId] =
         useState<string | null>(null);
     const [sortType, setSortType] = useState<
         "priceAsc" | "priceDesc" | "name"
     >("priceAsc");
+    const toggleFavorite = (id: string) => {
+    setFavoriteIds((prev) =>
+        prev.includes(id)
+            ? prev.filter((item) => item !== id)
+            : [...prev, id]
+    );
+};
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -136,10 +147,31 @@ export default function HomeScreen() {
             </SafeAreaView>
         );
     }
-
+    if (showFavorites) {
     return (
-        <SafeAreaView style={styles.safeArea}>
-            <View style={styles.container}>
+        <FavoritesScreen
+            products={products}
+            favoriteIds={favoriteIds}
+            onToggleFavorite={toggleFavorite}
+            onGoBack={() => setShowFavorites(false)}
+        />
+    );
+}
+    return (
+            <SafeAreaView style={styles.safeArea}>
+            <ScrollView
+            contentContainerStyle={styles.container}
+            showsVerticalScrollIndicator={false}>
+        
+                <TouchableOpacity
+                    style={styles.favoritesButton}
+                    onPress={() => setShowFavorites(true)}
+>
+                <Ionicons name="heart" size={20} color="#E53935" />
+                <Text style={styles.favoritesButtonText}>
+                    Обране ({favoriteIds.length})
+                </Text>
+                </TouchableOpacity>
 
                 <Text style={styles.sectionTitle}>
                     Категорії
@@ -215,11 +247,13 @@ export default function HomeScreen() {
                 </View>
 
                 <ProductList
-                    products={sortedProducts}
-                />
+    products={sortedProducts}
+    favoriteIds={favoriteIds}
+    onToggleFavorite={toggleFavorite}
+/>
 
-            </View>
-        </SafeAreaView>
+        </ScrollView>
+    </SafeAreaView>
     );
 }
 
@@ -229,8 +263,9 @@ const styles = StyleSheet.create({
     },
 
     container: {
-        paddingHorizontal: 16,
-        paddingBottom: 32,
+    flexGrow: 1,
+    paddingHorizontal: 16,
+    paddingBottom: 32, 
     },
 
     centerContainer: {
@@ -292,5 +327,19 @@ const styles = StyleSheet.create({
     sortButtonTextActive: {
         color: "#FFFFFF",
         fontWeight: "600",
+    },
+
+    favoritesButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-end",
+    gap: 6,
+    padding: 8,
+    },
+
+    favoritesButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#333333",
     },
 });
