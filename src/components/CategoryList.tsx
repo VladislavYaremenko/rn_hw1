@@ -27,7 +27,7 @@ export default function CategoryList({
             contentContainerStyle={styles.list}
         >
             <CategoryCard
-                name="Âñ³"
+                name="Ð’Ñi"
                 icon="apps"
                 bgColor="#E8F5E9"
                 iconColor="#2E7D32"

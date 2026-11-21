@@ -5,35 +5,41 @@
       "name": "Фрукти",
       "icon": "fruit-cherries",
       "bgColor": "#FFF3E0",
-      "iconColor": "#E65100"
+      "iconColor": "#E65100",
+      "image": "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=500"
+
     },
     {
       "id": "cat_vegetables",
       "name": "Овочі",
       "icon": "carrot",
       "bgColor": "#E8F5E9",
-      "iconColor": "#2E7D32"
+      "iconColor": "#2E7D32",
+      "image": "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=500"
     },
     {
       "id": "cat_dairy",
       "name": "Молочка",
       "icon": "cheese",
       "bgColor": "#FFFDE7",
-      "iconColor": "#FBC02D"
+      "iconColor": "#FBC02D",
+      "image": "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=500"
     },
     {
       "id": "cat_bakery",
       "name": "Випічка",
       "icon": "bread-slice",
       "bgColor": "#EFEBE9",
-      "iconColor": "#6D4C41"
+      "iconColor": "#6D4C41",
+      "image": "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=500"
     },
     {
       "id": "cat_drinks",
       "name": "Напої",
       "icon": "bottle-soda-classic",
       "bgColor": "#E1F5FE",
-      "iconColor": "#0288D1"
+      "iconColor": "#0288D1",
+      "image": "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=500"
     }
   ],
   "products": [

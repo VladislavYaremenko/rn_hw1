@@ -15,7 +15,7 @@ import CategoryList from "../components/CategoryList";
 import ProductList from "../components/ProductList";
 import { Ionicons } from "@expo/vector-icons";
 import CartScreen from "./CartScreen";
-import { useNavigation } from "@react-navigation/native";
+import { DrawerActions, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/types";
 import { useCart } from "../context/CartContext";
@@ -157,7 +157,6 @@ export default function HomeScreen() {
             </SafeAreaView>
         );
     }
-
     if (error) {
         return (
             <SafeAreaView style={styles.centerContainer}>
@@ -242,7 +241,14 @@ export default function HomeScreen() {
             </View>
 
             <View style={styles.screenContent}>
-                {activeTab === "favorites" ? (
+            <TouchableOpacity
+                style={styles.menuButton}
+                onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
+            >
+            <Ionicons name="menu" size={28} color="#222" />
+            </TouchableOpacity>
+
+            {activeTab === "favorites" ? (
                     <FavoritesScreen
                         products={products}
                         favoriteIds={favoriteIds}
@@ -529,5 +535,13 @@ const styles = StyleSheet.create({
     screenContent: {
         flex: 1,
         minWidth: 0,
+    },
+    menuButton: {
+    width: 44,
+    height: 44,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 12,
+    marginTop: 6,
     },
 });
